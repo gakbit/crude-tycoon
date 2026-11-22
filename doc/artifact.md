@@ -1,20 +1,21 @@
 # Crude Tycoon — Teljes Projekt Dokumentáció (`artifact.md`)
 
-> **Karbantartási szabály:** Ez a dokumentum a teljes **Crude Tycoon** alkalmazás élő architekturális és játékmeneti leírása (a projekt része a gyökérkönyvtárban és az Artifacts nézetben egyaránt). **Minden új funkció, egyensúly-módosítás, interaktív művelet vagy UI-változtatás után kötelező frissíteni!**
+> **Karbantartási szabály:** Ez a dokumentum a teljes **Crude Tycoon** alkalmazás élő architekturális és játékmeneti leírása (a projekt része a `doc/artifact.md` fájlban és az Artifacts nézetben egyaránt). **Minden új funkció, egyensúly-módosítás, interaktív művelet vagy UI-változtatás után kötelező frissíteni!**
 
 ---
 
 ## 1. Projekt áttekintés és technológiai stack
 
-A **Crude Tycoon** egy 100%-ban kliensoldali, körökre osztott, az 1990-es évek klasszikus olajipari gazdasági stratégiái által ihletett szimulációs játék magyar nyelvi felülettel (`hu-HU`).
+A **Crude Tycoon** egy 100%-ban kliensoldali, körökre osztott, az 1990-es évek klasszikus olajipari gazdasági stratégiái által ihletett szimulációs játék, **8 nyelvű, élőben váltható felülettel** (`en`, `hu`, `de`, `es`, `fr`, `pt`, `pl`, `zh`; részletek a **8. szakaszban**).
 
-- **Nyelvi konvenciók:** A felhasználói felület, hírek, jelentések és ez a dokumentáció magyar nyelvű; a forráskód, fájlnév, típusdefiníció és komment angol nyelvű. A felhasználói felületen nem használunk „minijáték” kifejezést — minden interaktív folyamat és külső alternatívája természetes iparági elnevezéssel szerepel (*Kézi reakciófúrás* vs *Kivitelezői fúrás*, *Belső könyvvizsgálat* vs *Külső elemző bérlése*, *Kézi rendszerbehatolás* vs *Külső hekker-csoport*, *Kézi tankerirányítás* vs *Tengeri mentőszolgálat*, *Helyszíni magminta-elemzés* vs *Külső geológiai intézet*).
+- **Nyelvi konvenciók:** A felhasználói felület és a játékon belüli tartalom (régiók, hírek, jelentések) mind a 8 nyelven elérhető, az eredeti alapnyelv a magyar; ez a dokumentáció magyar nyelvű. A forráskód, fájlnév, típusdefiníció és komment angol nyelvű. Az alábbi szövegek és elnevezések a magyar nyelvű felületet idézik. A felhasználói felületen nem használunk „minijáték” kifejezést — minden interaktív folyamat és külső alternatívája természetes iparági elnevezéssel szerepel (*Kézi reakciófúrás* vs *Kivitelezői fúrás*, *Belső könyvvizsgálat* vs *Külső elemző bérlése*, *Kézi rendszerbehatolás* vs *Külső hekker-csoport*, *Kézi tankerirányítás* vs *Tengeri mentőszolgálat*, *Helyszíni magminta-elemzés* vs *Külső geológiai intézet*).
 - **Technológiai verem:**
   - **Keretrendszer:** React 19 + TypeScript (`tsc --noEmit`) + Vite 8 (`port 3000`)
   - **Stílus:** Tailwind CSS v4 (`@tailwindcss/vite`), sötét ipari-terminál paletta (`#12161B`, `#1B222B`, `#E59A24` borostyán, `#44B872` terminálzöld, `#D94436` riasztóvörös, `#38BDF8` tengeri cián), `font-mono tabular-nums` számformázás
   - **Vizualizáció és ikonok:** Egyedi interaktív SVG világtérkép, 2D folyosó-jelenet és 60 FPS HTML5 Canvas tengeri navigáció, `recharts` spot árfolyam- és vagyongrafikonok, `lucide-react` ikonok
   - **Hangmotor:** Beépített Web Audio API szintetizátor (`soundFx.ts`), külső hangfájlok nélkül
-  - **Perzisztencia:** Böngésző `localStorage` alapú automatikus mentés és 3 manuális mentési rekesz (`storage.ts`)
+  - **Perzisztencia:** Böngésző `localStorage` alapú automatikus mentés és 3 manuális mentési rekesz (`storage.ts`), valamint a választott nyelv mentése (`crude_tycoon_lang_v1`)
+  - **Többnyelvűség:** Külső függőség nélküli, típusbiztos szótárrendszer React kontextussal (`src/i18n`)
 
 ---
 
@@ -50,6 +51,12 @@ flowchart TB
 
     APP["App.tsx (Fő állapotgép + toast + autosave)"]
 
+    subgraph I18N["Többnyelvűség (src/i18n)"]
+        IP["I18nContext.tsx (I18nProvider + useI18n)"]
+        ID["detect.ts (nyelvfelismerés, mentett nyelv, interpoláció)"]
+        IX["index.ts + locales/*.ts (8 szótár, lokalizáló segédfüggvények)"]
+    end
+
     subgraph ENGINE["Játékmotor (src/engine)"]
         TE["turnEngine.ts (Körléptetés, játékos akciók, 3 MI rivális, főkönyv)"]
         EE["economyEngine.ts (Piaci ciklusok, kitermelés, vagyon, válságok)"]
@@ -68,6 +75,11 @@ flowchart TB
     APP --> TE
     APP --> ST
     APP --> FX
+    UI --> IP
+    IP --> IX
+    IX --> ID
+    ENGINE --> IX
+    ST --> IX
     TE --> EE
     TE --> SE
     TE --> OE
@@ -105,6 +117,8 @@ stateDiagram-v2
     GAME_OVER --> TITLE_MENU: Új játék indítása
 ```
 
+> **Megjegyzés:** a `GameScreenState` típus tartalmaz egy `PAUSED` állapotot is, de az jelenleg nincs használatban (fenntartott érték), ezért nem szerepel a diagramon.
+
 ### 2.3 Fájlstruktúra
 
 | Mappa / Fájl | Szerepkör |
@@ -117,8 +131,13 @@ stateDiagram-v2
 | `src/engine/operationsEngine.ts` | Tanker navigációs pálya- és zátonygenerátor (`buildTankerNavigationSession`), nehézségfüggő tengeri mentési jutalmak/bírságok (`getTankerRescueConfig`), kőzetkémiai rétegszámoló és elemzői bónuszok (`buildCoreSampleSession`, `evaluateCoreSampleOrder`, `getCoreSampleConfig`) |
 | `src/data/regionsData.ts` | A 16 olajtermelő régió statikus adatai, 6 kőzetréteg-típus, 16 globális/regionális eseménysablon |
 | `src/utils/storage.ts` | `localStorage` kulcskezelés, visszafelé kompatibilis mentés-normalizálás (aktív műveleti képernyők biztonságos szűrése) |
+| `src/i18n/index.ts` | `TRANSLATIONS` térkép, `getDict`, lokalizált szám-/deviza-/hordó-/dátumformázók, régió-, esemény-, hír-, rétegtani, MI-mottó és játékvége-összegző lokalizáló függvények |
+| `src/i18n/types.ts` | `SupportedLanguage`, `LANGUAGE_OPTIONS` (kód, natív név, `localeTag`) és a `TranslationSchema` interfész (a 8 szótár közös, fordítási időben ellenőrzött sémája) |
+| `src/i18n/detect.ts` | Böngészőnyelv-felismerés, mentett nyelv (`crude_tycoon_lang_v1`), aktív nyelv és feliratkozás, `interpolate` helyőrző-behelyettesítő |
+| `src/i18n/I18nContext.tsx` | `I18nProvider` és `useI18n` hook; `html lang`, oldalcím és meta leírás szinkronizálása |
+| `src/i18n/locales/*.ts` | A 8 nyelvi szótár: `en`, `hu`, `de`, `es`, `fr`, `pt`, `pl`, `zh` |
 | `src/utils/soundFx.ts` | Procedurális hanghatások (kattintás, fúró, áttörés, kártya, lépés, terminál, riasztó, hajótest-ütközés, kikötés, laborcsere/siker/hiba, körzárás, kassza) |
-| `src/components/*.tsx` | 18 moduláris UI és műveleti komponens |
+| `src/components/*.tsx` | 19 moduláris UI és műveleti komponens (beleértve a `LanguageSelector` nyelvválasztót) |
 
 ---
 
@@ -268,7 +287,7 @@ Ha egy játékos által birtokolt régiót **Tartályhajó-baleset (`tanker_oil_
 
 | Paraméter | Könnyű (`EASY`) | Normál (`STANDARD`) | Nehéz (`HARD`) |
 | --- | --- | --- | --- |
-| **Pályaakadályok & Áramlat** | `6` zátony + `2` roncs + `2` áramlat | `9` zátony + `3` roncs + `3` áramlat | `12` zátony + `4` roncs + `4` áramlat |
+| **Pályaakadályok & Áramlat** | `7` zátony + `1` roncs + `2` áramlatzóna | `10` zátony + `2` roncs + `2` áramlatzóna | `13` zátony + `3` roncs + `2` áramlatzóna |
 | **Időlimit / Hajótest HP** | `40 mp` / `4 HP` | `35 mp` / `3 HP` | `30 mp` / `2 HP` |
 | **Kézi tankerirányítás — Siker** | `$0` nettó bírság (`ownerRepairCost` visszatérítés), leállás felezve (`2 -> 1`), **60%** kármentés (szivárgott + kiesett olaj) | `$0` nettó bírság, leállás felezve (`2 -> 1`), **50%** kármentés | `$0` nettó bírság, leállás felezve (`2 -> 1`), **40%** kármentés |
 | **Kézi tankerirányítás — Kudarc / Feladás** | **`1,5×`** környezetvédelmi bírság* | **`2,0×`** környezetvédelmi bírság* | **`2,5×`** környezetvédelmi bírság* |
@@ -337,18 +356,33 @@ A játékos minden már birtokolt (saját vagy rivális) koncesszión szabadon v
 ## 7. Mentési rendszer és visszafelé kompatibilitás (`storage.ts`)
 
 - **Kulcsok:** Automatikus mentés (`crude_tycoon_autosave_v1`) + 3 manuális mentési rekesz (`crude_tycoon_slot_v1_slot_1..3`).
-- **Műveleti állapotvédelem:** Ha mentéskor interaktív műveleti képernyő fut (`DRILLING_MINIGAME`, `ANALYST_MINIGAME`, `SABOTAGE_MINIGAME`, `TANKER_MINIGAME`, `CORE_SAMPLE_MINIGAME`), a `saveAutosave` és `saveToSlot` biztonságosan `PLAYING` képernyőre állítja vissza és nullázza a félbehagyott munkamenetet, elkerülve a beragadt modális állapotokat.
-- **Régebbi mentések normalizálása:** A `normalizeLoadedState()` automatikusan pótolja az újabb mezőket (`activeHack`, `sabotageLockdownTurns`, `sabotageHistory`, `sabotageCost`, `sabotageFineCost`, `crisisPriceMultiplier`, `coreSampleReport`, `activeTankerMinigame`, `activeCoreSampleMinigame`, `pendingTankerRescuePrompt`, `crisisRescueRefund`, `crisisRescueCost`, `coreSampleCost`, `pendingMonthlySummary`, `pendingAnnualReportTurn`, `regionalCrisesInYear`, negyedéves/éves jelentésarchívum).
+- **Műveleti állapotvédelem:** Ha mentéskor interaktív műveleti képernyő fut (`DRILLING_MINIGAME`, `ANALYST_MINIGAME`, `SABOTAGE_MINIGAME`, `TANKER_MINIGAME`, `CORE_SAMPLE_MINIGAME`), a `saveAutosave` és `saveToSlot` biztonságosan `PLAYING` képernyőre állítja vissza, és nullázza a félbehagyott munkamenetet (`drillingSession`, `analystSession`, `sabotageSession`, `tankerSession`, `coreSampleSession`), elkerülve a beragadt modális állapotokat.
+- **Régebbi mentések normalizálása:** A `normalizeLoadedState()` automatikusan pótolja az újabb mezőket (`activeHack`, `sabotageLockdownTurns`, `sabotageHistory`, `sabotageCost`, `sabotageFineCost`, `crisisPriceMultiplier`, `coreSampleReport` (`profileKey`), `crisisTemplateId` és eseményeknél `templateId`, `pendingTankerRescuePrompt` (`templateId`), `crisisRescueRefund`, `crisisRescueCost`, `coreSampleCost`, `pendingMonthlySummary`, `pendingAnnualReportTurn`, `regionalCrisesInYear`, `analystAccessTurnsByCompanyId`, negyedéves/éves jelentésarchívum és jelentéscímkék). A betöltés mindig `PLAYING` képernyőre és üres műveleti munkamenetekre áll vissza.
+- **Nyelvfüggetlen mentés:** A mentés nem tárolja a választott nyelvet (az külön, `crude_tycoon_lang_v1` kulcson él), így egy betöltött játék a pillanatnyi nyelven jelenik meg; részletek a **8. szakaszban**.
 
 ---
 
-## 8. Nehézségi Stresszteszt (1 800 szimulált játék — Monte Carlo hitelesítés)
+## 8. Többnyelvűség (i18n)
 
-Paraméterezés: `10 mp/kör` (leggyorsabb, külsősökkel) vs `25 mp/kör` (leglassabb, minden interaktív művelettel) + `30 mp / interaktív művelet`, valamint `17,5 mp/kör` célzott játékstílus (`N = 200` futam / mód / nehézség, `0` főkönyvi hiba):
+A felület és a játékon belüli tartalom **8 nyelven** érhető el, külső i18n-függőség nélkül (`src/i18n`).
 
-| Nehézségi szint | Leggyorsabb (10s/kör) | Leglassabb (25s/kör + 30s/művelet) | (Gyors + Lassú) / 2 átlag | Célzott játékstílus |
-| --- | --- | --- | --- | --- |
-| **Könnyű (`EASY`)** | `76,0%` győzelem · `2,5 perc` | `100,0%` győzelem · `15,8 perc` (`21,6` művelet) | **`88,0%` győzelem · `9,2 perc`** | `93,5%` győzelem · `6,3 perc` (`4,3` művelet) |
-| **Normál (`STANDARD`)** | `35,0%` győzelem · `12,4 perc` | `100,0%` győzelem · `44,7 perc` (`37,8` művelet) | **`67,5%` győzelem · `28,5 perc`** | `81,0%` győzelem · `28,1 perc` (`16,4` művelet) |
-| **Nehéz (`HARD`)** | `21,5%` győzelem · `20,7 perc` | **`44,0%` győzelem · `68,1 perc`** (`40,5` művelet) | `32,8%` győzelem · `44,4 perc` | **`45,5%` győzelem · `54,1 perc`** (`40,7` művelet) |
+| Kód | Nyelv | Natív név | `localeTag` |
+| --- | --- | --- | --- |
+| `en` | Angol (globális tartalék) | English | `en-US` |
+| `hu` | Magyar (eredeti alapnyelv) | Magyar | `hu-HU` |
+| `de` | Német | Deutsch | `de-DE` |
+| `es` | Spanyol | Español | `es-ES` |
+| `fr` | Francia | Français | `fr-FR` |
+| `pt` | Portugál | Português | `pt-BR` |
+| `pl` | Lengyel | Polski | `pl-PL` |
+| `zh` | Egyszerűsített kínai | 简体中文 | `zh-CN` |
+
+- **Nyelvválasztás indításkor (`resolveInitialLanguage`):** 1. a mentett választás (`localStorage`, kulcs: `crude_tycoon_lang_v1`), 2. a böngésző nyelve (`navigator.languages`, majd `navigator.language`; csak az elsődleges nyelvi alcímke számít, pl. `pt-BR` → `pt`, `zh-Hans-CN` → `zh`), 3. ismeretlen nyelvnél **`en`**.
+- **Élő váltás:** Az `I18nProvider` állapota és a `useI18n()` hook (`lang`, `localeTag`, `dict`, `setLanguage`) azonnal újrarajzolja a felületet; a váltás menti a választást, frissíti a `html lang` attribútumot, az oldalcímet és a meta leírásokat.
+- **Nyelvválasztó (`LanguageSelector`) helye:** kizárólag a **Kezdőképernyőn**, a **Mentés / Betöltés** ablakban és a **GY.I.K.** ablakban. A játék közbeni `TopBar` szándékosan nem tartalmaz nyelvválasztót.
+- **Típusbiztos szótárak:** a `TranslationSchema` (`types.ts`) az egyetlen séma; mind a 8 `locales/*.ts` fájl ezzel van típusozva, így hiányzó kulcs fordítási hibát okoz. A helyőrzők `{név}` alakúak, a behelyettesítést az `interpolate()` végzi.
+- **Lokalizált formázás:** számok, deviza (`formatCurrencyI18n`), hordó (`formatBarrelsI18n`, nyelvenként saját mértékegység), játékidő és jelentési időszakok (`formatGameDateI18n`, `formatGameShortDateI18n`, `getReportPeriodMetaI18n`).
+- **Lokalizált játéktartalom:** 16 régió (név, kontinens, leírás, geológiai jegyzet), 6 kőzetréteg és kémiai leírásuk, magminta-profilok, a 16 eseménysablon, bizonylatpakli, szerverszoba-címkék, tanker-áramlatok, MI-mottók és a játékvége-összegző.
+- **Hírek és jelentések:** a naplóbejegyzések (`NewsLogEntry`) `i18nKey` és `i18nParams` mezőt kapnak (39 naplókulcs a `logEntries` szótárban), ezért az újonnan generált hírek nyelvváltáskor is átfordulnak. Az `i18nKey` nélküli, régebbi mentésből származó bejegyzések az eredeti szövegükkel jelennek meg.
+- **Motor és nyelv:** a motor (`turnEngine.ts`, `economyEngine.ts`) a pillanatnyi aktív nyelven (`getActiveLanguage()` / `getDict()`) állítja elő a hibaüzeneteket és a naplószövegeket.
 
