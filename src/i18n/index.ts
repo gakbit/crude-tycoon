@@ -279,7 +279,6 @@ export function getLocalizedEvent(
     | 'affectedRegionId'
     | 'spilledBarrelsAmount'
     | 'rescueOutcome'
-    | 'rescueSavedPct'
   >,
   lang: SupportedLanguage = getActiveLanguage()
 ): { title: string; description: string; crisisLabel: string } {
@@ -324,7 +323,7 @@ export function getLocalizedEvent(
 
 export function getLocalizedRegionCrisisLabel(
   regionId: RegionId,
-  crisisTemplateId: string | undefined,
+  crisisTemplateId: string | null | undefined,
   activeEvents: GeopoliticalEvent[],
   fallbackLabel: string | null,
   lang: SupportedLanguage = getActiveLanguage()

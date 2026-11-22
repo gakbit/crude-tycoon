@@ -152,12 +152,15 @@ export const CoreSampleMinigameModal: React.FC<
       const pctRounded = Math.round(releasedPct);
       const rem = Math.max(0, session.maxAttempts - nextAttempts);
 
+      const missKind: 'TOO_EARLY' | 'OVERFLOW' =
+        res.reason === 'TOO_EARLY' ? 'TOO_EARLY' : 'OVERFLOW';
+
       if (nextAttempts >= session.maxAttempts) {
         soundFx.alarmTriggered();
         setPhase('FAILED');
         phaseRef.current = 'FAILED';
         setFeedback({
-          kind: res.reason,
+          kind: missKind,
           pct: pctRounded,
           attemptsRemaining: rem,
           showRecalibrated: false,
@@ -177,7 +180,7 @@ export const CoreSampleMinigameModal: React.FC<
         cursorRef.current = 0;
         setCursorPct(0);
         setFeedback({
-          kind: res.reason,
+          kind: missKind,
           pct: pctRounded,
           attemptsRemaining: rem,
           showRecalibrated: true,

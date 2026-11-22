@@ -25,8 +25,8 @@ import {
   getLocalizedRegion,
   getLocalizedTankerCurrentLabel,
   interpolate,
-  useI18n,
 } from '../i18n';
+import { useI18n } from '../i18n/I18nContext';
 import { soundFx } from '../utils/soundFx';
 
 interface TankerSpillMinigameModalProps {

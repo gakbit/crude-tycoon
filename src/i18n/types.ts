@@ -196,17 +196,17 @@ export interface TranslationSchema {
     closeFooter: string;
     sections: {
       goalTitle: string;
-      goalItems: readonly [string, string, string];
+      goalItems: readonly string[];
       drillingTitle: string;
-      drillingItems: readonly [string, string, string];
+      drillingItems: readonly string[];
       analystTitle: string;
-      analystItems: readonly [string, string, string];
+      analystItems: readonly string[];
       sabotageTitle: string;
-      sabotageItems: readonly [string, string, string];
+      sabotageItems: readonly string[];
       tankerTitle: string;
-      tankerItems: readonly [string, string, string];
+      tankerItems: readonly string[];
       bankTitle: string;
-      bankItems: readonly [string, string, string];
+      bankItems: readonly string[];
       difficultiesTitle: string;
       difficultiesSummary: string;
     };
