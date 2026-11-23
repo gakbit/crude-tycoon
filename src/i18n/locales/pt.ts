@@ -1117,29 +1117,25 @@ export const pt: TranslationSchema = {
     statusCaught: 'ALARME — DETECTADO!',
     statusSuccess: 'SISTEMAS INVADIDOS',
     statusHacking: 'Invadindo sala ({pct}%)',
-    statusReadyExit: 'Na sala (seguro) — Segure para sair!',
     statusWalking: 'Avançando pelo corredor',
-    statusWallCover: 'Colado à parede (Oculto na sombra)',
-    statusWallExposed: 'Colado à parede (Exposto — vigie as câmeras!)',
+    statusHidden: 'Escondido — espere o momento seguro',
+    statusExposed: 'À vista',
+    statusClimbing: 'Subindo a escada',
+    statusLift: 'No elevador',
+    statusNeedKey: 'Cartão necessário — pegue o ◆ no térreo ou no 1º andar!',
+    keycardLabel: 'Cartão',
     caughtPenaltyLabel: 'Se pego: -{fine} + {months} meses bloqueio',
     roomStatusOk: 'OK',
     roomStatusLocked: 'TRANC.',
     svgAriaLabel: 'Visão furtiva do corredor do centro de dados',
-    entryZoneTag: 'ENTRADA',
-    coverTag: 'COBERTURA',
-    doorReachedTag: 'PORTA ALCANÇADA — SOLTE!',
-    burglarHiddenTag: 'OCULTO',
-    burglarExposedTag: 'NA PAREDE',
-    camLeftTag: '◄ ESQ',
-    camRightTag: 'DIR ►',
-    camTurnTag: 'GIRA',
-    stepBackMissedButton: 'Voltar à porta perdida',
-    stepBackButton: 'Recuar (segure)',
-    holdForwardButton:
-      'SEGURE: AVANÇAR À DIREITA · SOLTE: PAREDE / ENTRAR',
     controlsHint:
-      'Segure o corredor (ou botão / Espaço) para avançar. Solte nas áreas de COBERTURA para se esconder ou em frente às portas verde/azul para entrar!',
-    deadzoneHint: 'Ponto cego = logo abaixo da câmera',
+      'Toque ou clique para mover. Toque numa porta para invadir, num esconderijo para se esconder, na escada ou no elevador para trocar de andar. (Dicas)',
+    legendHide:
+      'Esconderijos: armário = esconde de tudo · sombra = só de câmeras · mesa = guardas + câmeras piscantes · planta = guardas + câmeras giratórias.',
+    legendCameras:
+      'Câmeras: giratória (seguro logo abaixo), feixe piscante (âmbar = prestes a disparar), holofote deslizante. Os guardas olham à frente e param nas pontas da ronda.',
+    legendDoors:
+      'Portas: âmbar = invasão rápida, cadeado vermelho = arrombamento lento, cartão azul = exige o cartão.',
     successTitle:
       'Intrusão Bem-Sucedida! Todas as {rooms} salas foram violadas.',
     successBoostDesc:

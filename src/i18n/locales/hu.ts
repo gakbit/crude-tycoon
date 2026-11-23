@@ -1118,29 +1118,25 @@ export const hu: TranslationSchema = {
     statusCaught: 'RIASZTÁS — ÉSZLELVE!',
     statusSuccess: 'MINDEN RENDSZER FELTÖRVE',
     statusHacking: 'Szerverszoba feltörése ({pct}%)',
-    statusReadyExit: 'Szobában (védett) — Tartsa nyomva a kilépéshez!',
     statusWalking: 'Lopakodás folyamatban',
-    statusWallCover: 'Falhoz simulva (Rejtve az árnyékban)',
-    statusWallExposed: 'Falhoz simulva (Nyílt fal — figyelje a kamerákat!)',
+    statusHidden: 'Elbújva — várja meg a biztonságos pillanatot',
+    statusExposed: 'Nyílt terepen áll',
+    statusClimbing: 'Lépcsőn halad',
+    statusLift: 'Liftben',
+    statusNeedKey: 'Kulcskártya kell — szerezze meg a ◆ kártyát a földszinten vagy az 1. emeleten!',
+    keycardLabel: 'Kulcskártya',
     caughtPenaltyLabel: 'Lebukás: -{fine} + {months} hó zár',
     roomStatusOk: 'OK',
     roomStatusLocked: 'ZÁRT',
     svgAriaLabel: 'Kormányzati adatközpont folyosó lopakodó nézet',
-    entryZoneTag: 'BELÉPÉSI ZÓNA',
-    coverTag: 'FEDEZÉK',
-    doorReachedTag: 'AJTÓ ELÉRVE — ENGEDJE EL!',
-    burglarHiddenTag: 'REJTVE',
-    burglarExposedTag: 'FALHOZ SIMULVA',
-    camLeftTag: '◄ BALRA',
-    camRightTag: 'JOBBRA ►',
-    camTurnTag: 'FORDUL',
-    stepBackMissedButton: 'Visszalépés a kihagyott ajtóhoz',
-    stepBackButton: 'Hátralépés (tartsa nyomva)',
-    holdForwardButton:
-      'NYOMVA TARTVA: LOPAKODÁS JOBBRA · ELENGEDÉS: FAL / AJTÓBA LÉPÉS',
     controlsHint:
-      'Tartsa nyomva a folyosót (vagy a gombot / Szóközt) a haladáshoz. Engedje el a FEDEZÉK zónákban a falhoz simuláshoz, vagy közvetlenül a zöld/kék ajtók előtt a belépéshez!',
-    deadzoneHint: 'Holttér = közvetlenül a kamera alatt',
+      'Koppintson vagy kattintson a mozgáshoz. Ajtóra koppintva feltöri, rejtekhelyre koppintva elbújik, a lépcsőre vagy a liftre koppintva emeletet vált. (Tippek)',
+    legendHide:
+      'Rejtekhely: szekrény = mindenki elől rejt · árnyék = csak kamerák elől · asztal = őrök + villogó kamerák elől · növény = őrök + lengő kamerák elől.',
+    legendCameras:
+      'Kamerák: lengő (közvetlenül alatta biztonságos), villogó sugár (borostyán = mindjárt aktív), csúszó reflektor. Az őrök maguk elé látnak, és a járőrút végén megállnak.',
+    legendDoors:
+      'Ajtók: borostyán = gyors feltörés, piros lakat = lassú zárfeltörés, kék kártya = kulcskártya kell.',
     successTitle:
       'Behatolás sikeres! Mind a(z) {rooms} szerverszoba feltörve.',
     successBoostDesc:

@@ -1117,29 +1117,25 @@ export const es: TranslationSchema = {
     statusCaught: '¡ALARMA — DETECTADO!',
     statusSuccess: 'SISTEMAS VULNERADOS',
     statusHacking: 'Vulnerando sala ({pct}%)',
-    statusReadyExit: 'Dentro (a salvo) — ¡Mantén pulsado para salir!',
     statusWalking: 'Avanzando por el pasillo',
-    statusWallCover: 'Pegado a la pared (Oculto en sombra)',
-    statusWallExposed: 'Pegado a la pared (Expuesto — ¡ojo a las cámaras!)',
+    statusHidden: 'Escondido — espera el momento seguro',
+    statusExposed: 'A la vista',
+    statusClimbing: 'Subiendo por las escaleras',
+    statusLift: 'En el ascensor',
+    statusNeedKey: 'Hace falta la tarjeta — ¡coge la ◆ en la planta baja o en la 1.ª!',
+    keycardLabel: 'Tarjeta',
     caughtPenaltyLabel: 'Si te descubren: -{fine} + {months} mes. cierre',
     roomStatusOk: 'OK',
     roomStatusLocked: 'CERR.',
     svgAriaLabel: 'Vista de sigilo en el pasillo del centro de datos',
-    entryZoneTag: 'ENTRADA',
-    coverTag: 'COBERTURA',
-    doorReachedTag: '¡PUERTA ALCANZADA — SUELTA!',
-    burglarHiddenTag: 'OCULTO',
-    burglarExposedTag: 'EN PARED',
-    camLeftTag: '◄ IZQ',
-    camRightTag: 'DER ►',
-    camTurnTag: 'GIRA',
-    stepBackMissedButton: 'Volver a la puerta omitida',
-    stepBackButton: 'Retroceder (mantener)',
-    holdForwardButton:
-      'MANTENER: SIGILO DERECHA · SOLTAR: PARED / ENTRAR PUERTA',
     controlsHint:
-      'Mantén pulsado el pasillo (o botón / Espacio) para avanzar. ¡Suelta en zonas de COBERTURA o frente a las puertas verde/azul para entrar!',
-    deadzoneHint: 'Punto ciego = justo bajo la cámara',
+      'Toca o haz clic para moverte. Toca una puerta para vulnerarla, un escondite para ocultarte, las escaleras o el ascensor para cambiar de planta. (Consejos)',
+    legendHide:
+      'Escondites: taquilla = oculta de todo · sombra = solo de cámaras · escritorio = guardias + cámaras parpadeantes · planta = guardias + cámaras giratorias.',
+    legendCameras:
+      'Cámaras: giratoria (seguro justo debajo), haz parpadeante (ámbar = a punto de activarse), foco deslizante. Los guardias miran al frente y se detienen en los extremos de su ronda.',
+    legendDoors:
+      'Puertas: ámbar = apertura rápida, candado rojo = ganzúa lenta, tarjeta azul = requiere la tarjeta.',
     successTitle:
       '¡Intrusión Exitosa! Las {rooms} salas fueron vulneradas.',
     successBoostDesc:

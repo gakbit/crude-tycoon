@@ -298,27 +298,63 @@ export interface AnalystMinigameSession {
   cards: AnalystCardSpec[];
 }
 
+export type StealthDoorType = 'OPEN' | 'LOCKED' | 'KEYCARD';
+
 export interface StealthRoomSpec {
   roomIndex: number;
   code: string;
   label: string;
+  floor: number;
   doorX: number;
   doorHalfWidth: number;
+  doorType: StealthDoorType;
+  hackDurationMs: number;
 }
+
+/** SWEEP: pendulum camera with a blind spot; FIXED: blinking beam; SPOT: sliding spotlight. */
+export type StealthCameraKind = 'SWEEP' | 'FIXED' | 'SPOT';
 
 export interface StealthCameraSpec {
   id: string;
+  kind: StealthCameraKind;
+  floor: number;
   mountX: number;
   rangePx: number;
   blindSpotHalfPx: number;
   cycleSeconds: number;
   initialPhaseOffset: number;
+  /** Beam direction for FIXED cameras. */
+  facing: 1 | -1;
 }
 
-export interface StealthCoverSpec {
+export type StealthHideKind = 'LOCKER' | 'SHADOW' | 'DESK' | 'PLANT';
+
+export interface StealthHideSpotSpec {
   id: string;
-  centerX: number;
+  kind: StealthHideKind;
+  floor: number;
+  x: number;
   halfWidth: number;
+}
+
+export interface StealthGuardSpec {
+  id: string;
+  floor: number;
+  patrolMinX: number;
+  patrolMaxX: number;
+  speedPxPerSec: number;
+  pauseSeconds: number;
+  visionPx: number;
+  initialPhaseOffset: number;
+}
+
+export interface StealthBuildingSpec {
+  floorsCount: number;
+  width: number;
+  liftX: number;
+  /** stairsX[f] connects floor f with floor f + 1. */
+  stairsX: number[];
+  keycard: { floor: number; x: number } | null;
 }
 
 export interface SabotageEffectSpec {
@@ -337,13 +373,13 @@ export interface SabotageMinigameSession {
   upfrontCost: number;
   caughtFineCost: number;
   lockdownMonths: number;
-  corridorLengthPx: number;
   walkSpeedPxPerSec: number;
   roomsCount: number;
-  hackDurationMs: number;
+  building: StealthBuildingSpec;
   rooms: StealthRoomSpec[];
   cameras: StealthCameraSpec[];
-  covers: StealthCoverSpec[];
+  hideSpots: StealthHideSpotSpec[];
+  guards: StealthGuardSpec[];
   effectConfig: SabotageEffectSpec;
 }
 

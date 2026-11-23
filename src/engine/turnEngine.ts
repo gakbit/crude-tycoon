@@ -56,7 +56,7 @@ import {
   isTankerRescueEligibleEventId,
 } from './operationsEngine';
 import {
-  buildStealthCorridorSession,
+  buildStealthBuildingSession,
   getSabotageContractorCost,
   getSabotageEffectConfig,
   SABOTAGE_CAUGHT_FINE,
@@ -1554,7 +1554,7 @@ export function startConcessionSabotageMinigame(
     state.market
   );
 
-  const session = buildStealthCorridorSession({
+  const session = buildStealthBuildingSession({
     regionId,
     targetOwnerCompanyId: regionRt.ownerCompanyId,
     direction,

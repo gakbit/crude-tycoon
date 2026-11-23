@@ -1117,29 +1117,25 @@ export const pl: TranslationSchema = {
     statusCaught: 'ALARM — WYKRYTO!',
     statusSuccess: 'WSZYSTKIE SYSTEMY ZŁAMANE',
     statusHacking: 'Łamanie serwerowni ({pct}%)',
-    statusReadyExit: 'W pokoju (bezpieczny) — Przytrzymaj, aby wyjść!',
     statusWalking: 'Skradanie korytarzem',
-    statusWallCover: 'Przy ścianie (Ukryty w cieniu)',
-    statusWallExposed: 'Przy ścianie (Odsłonięty — uważaj na kamery!)',
+    statusHidden: 'Ukryty — poczekaj na bezpieczny moment',
+    statusExposed: 'Na otwartej przestrzeni',
+    statusClimbing: 'Na schodach',
+    statusLift: 'W windzie',
+    statusNeedKey: 'Potrzebna karta — weź ◆ na parterze lub 1. piętrze!',
+    keycardLabel: 'Karta',
     caughtPenaltyLabel: 'Wpadka: -{fine} + {months} mies. blokady',
     roomStatusOk: 'OK',
     roomStatusLocked: 'ZAMK.',
     svgAriaLabel: 'Widok skradania w korytarzu centrum danych',
-    entryZoneTag: 'STREFA WEJŚCIA',
-    coverTag: 'OSŁONA',
-    doorReachedTag: 'DRZWI — PUŚĆ!',
-    burglarHiddenTag: 'UKRYTY',
-    burglarExposedTag: 'PRZY ŚCIANIE',
-    camLeftTag: '◄ LEWO',
-    camRightTag: 'PRAWO ►',
-    camTurnTag: 'OBRÓT',
-    stepBackMissedButton: 'Cofnij do miniętych drzwi',
-    stepBackButton: 'Krok w tył (przytrzymaj)',
-    holdForwardButton:
-      'PRZYTRZYMAJ: SKRADANIE W PRAWO · PUŚĆ: ŚCIANA / WEJŚCIE',
     controlsHint:
-      'Przytrzymaj korytarz (lub przycisk / Spację), aby iść. Puść w strefach OSŁONY, aby się ukryć, lub przed zielono-niebieskimi drzwiami, aby wejść!',
-    deadzoneHint: 'Martwe pole = bezpośrednio pod kamerą',
+      'Dotknij lub kliknij, aby się poruszać. Dotknij drzwi, aby je włamać, kryjówki, aby się ukryć, schodów lub windy, aby zmienić piętro. (Wskazówki)',
+    legendHide:
+      'Kryjówki: szafka = chroni przed wszystkim · cień = tylko przed kamerami · biurko = przed strażnikami + migającymi kamerami · roślina = przed strażnikami + obrotowymi kamerami.',
+    legendCameras:
+      'Kamery: obrotowa (bezpiecznie tuż pod nią), migająca wiązka (bursztyn = zaraz się włączy), przesuwany reflektor. Strażnicy patrzą przed siebie i zatrzymują się na końcach trasy.',
+    legendDoors:
+      'Drzwi: bursztyn = szybkie włamanie, czerwona kłódka = wolne wytrychy, niebieska karta = wymaga karty.',
     successTitle:
       'Włamanie Udane! Złamano wszystkie {rooms} serwerownie.',
     successBoostDesc:

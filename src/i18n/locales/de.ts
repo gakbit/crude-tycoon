@@ -1117,29 +1117,25 @@ export const de: TranslationSchema = {
     statusCaught: 'ALARM — ENTDECKT!',
     statusSuccess: 'ALLE SYSTEME GEKNACKT',
     statusHacking: 'Serverraum wird geknackt ({pct} %)',
-    statusReadyExit: 'Im Raum (sicher) — Gedrückt halten zum Verlassen!',
     statusWalking: 'Schleicht durch den Korridor',
-    statusWallCover: 'An die Wand gepresst (Im Schatten verborgen)',
-    statusWallExposed: 'An der Wand (Offen — Kameras beobachten!)',
+    statusHidden: 'Versteckt — auf den sicheren Moment warten',
+    statusExposed: 'Steht im Freien',
+    statusClimbing: 'Nimmt die Treppe',
+    statusLift: 'Im Aufzug',
+    statusNeedKey: 'Schlüsselkarte nötig — hol dir die ◆ Karte im Erdgeschoss oder 1. OG!',
+    keycardLabel: 'Schlüsselkarte',
     caughtPenaltyLabel: 'Bei Entdeckung: -{fine} + {months} Mon. Sperre',
     roomStatusOk: 'OK',
     roomStatusLocked: 'GESP.',
     svgAriaLabel: 'Korridor-Schleichansicht im Behörden-Datenzentrum',
-    entryZoneTag: 'EINTRITTSZONE',
-    coverTag: 'DECKUNG',
-    doorReachedTag: 'TÜR ERREICHT — LOSLASSEN!',
-    burglarHiddenTag: 'VERSTECKT',
-    burglarExposedTag: 'AN WAND',
-    camLeftTag: '◄ LINKS',
-    camRightTag: 'RECHTS ►',
-    camTurnTag: 'DREHT',
-    stepBackMissedButton: 'Zurück zur verpassten Tür',
-    stepBackButton: 'Zurückweichen (gedrückt halten)',
-    holdForwardButton:
-      'GEDRÜCKT HALTEN: RECHTS SCHLEICHEN · LOSLASSEN: WAND / TÜR',
     controlsHint:
-      'Korridor (oder Button / Leertaste) gedrückt halten zum Gehen. In DECKUNG-Nischen loslassen zum Verstecken oder vor grün/blauen Türen zum Eintreten!',
-    deadzoneHint: 'Totwinkel = direkt unter der Kamera',
+      'Tippen oder klicken zum Bewegen. Tür antippen = knacken, Versteck antippen = verstecken, Treppe oder Aufzug antippen = Etage wechseln. (Tipps)',
+    legendHide:
+      'Verstecke: Spind = vor allem verborgen · Schatten = nur vor Kameras · Schreibtisch = vor Wachen + blinkenden Kameras · Pflanze = vor Wachen + schwenkenden Kameras.',
+    legendCameras:
+      'Kameras: schwenkend (direkt darunter sicher), blinkender Strahl (Bernstein = gleich aktiv), gleitender Scheinwerfer. Wachen sehen nach vorn und pausieren an den Enden ihrer Runde.',
+    legendDoors:
+      'Türen: Bernstein = schnell knacken, rotes Schloss = langsames Dietrichknacken, blaue Karte = Schlüsselkarte nötig.',
     successTitle:
       'Infiltration erfolgreich! Alle {rooms} Serverräume gehackt.',
     successBoostDesc:

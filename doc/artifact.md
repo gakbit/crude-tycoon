@@ -12,7 +12,7 @@ A **Crude Tycoon** egy 100%-ban kliensoldali, körökre osztott, az 1990-es éve
 - **Technológiai verem:**
   - **Keretrendszer:** React 19 + TypeScript (`tsc --noEmit`) + Vite 8 (`port 3000`)
   - **Stílus:** Tailwind CSS v4 (`@tailwindcss/vite`), sötét ipari-terminál paletta (`#12161B`, `#1B222B`, `#E59A24` borostyán, `#44B872` terminálzöld, `#D94436` riasztóvörös, `#38BDF8` tengeri cián), `font-mono tabular-nums` számformázás
-  - **Vizualizáció és ikonok:** Egyedi interaktív SVG világtérkép, 2D folyosó-jelenet és 60 FPS HTML5 Canvas tengeri navigáció, `recharts` spot árfolyam- és vagyongrafikonok, `lucide-react` ikonok
+  - **Vizualizáció és ikonok:** Egyedi interaktív SVG világtérkép, 2D épület-keresztmetszet és 60 FPS HTML5 Canvas tengeri navigáció, `recharts` spot árfolyam- és vagyongrafikonok, `lucide-react` ikonok
   - **Hangmotor:** Beépített Web Audio API szintetizátor (`soundFx.ts`), külső hangfájlok nélkül
   - **Perzisztencia:** Böngésző `localStorage` alapú automatikus mentés és 3 manuális mentési rekesz (`storage.ts`), valamint a választott nyelv mentése (`crude_tycoon_lang_v1`)
   - **Többnyelvűség:** Külső függőség nélküli, típusbiztos szótárrendszer React kontextussal (`src/i18n`)
@@ -41,7 +41,7 @@ flowchart TB
             TM["TankerSpillMinigameModal (Kézi tankerirányítás)"]
             TRP["TankerRescuePromptModal (Körváltásos tengeri riasztás)"]
             AM["AnalystMinigameModal (Belső könyvvizsgálat)"]
-            SM["SabotageMinigameModal (Kézi rendszerbehatolás)"]
+            SM["SabotageMinigameModal (Többszintes épület, tap-to-move)"]
             MSM["MonthlySummaryModal (Havi mérleg)"]
             ARM["AnnualReportModal (Éves zárójelentés)"]
             SLM["SaveLoadModal (Mentés / Betöltés)"]
@@ -60,7 +60,7 @@ flowchart TB
     subgraph ENGINE["Játékmotor (src/engine)"]
         TE["turnEngine.ts (Körléptetés, játékos akciók, 3 MI rivális, főkönyv)"]
         EE["economyEngine.ts (Piaci ciklusok, kitermelés, vagyon, válságok)"]
-        SE["sabotageEngine.ts (Folyosó geometria, kamera pásztázás, észlelés)"]
+        SE["sabotageEngine.ts (Épületgenerátor, kamerák, őrök, rejtekhelyek, útvonaltervező)"]
         OE["operationsEngine.ts (Tanker pálya/fizika konfiguráció, magminta-rétegtan, nehézségi skálázás)"]
         GT["gameTypes.ts (Domain interfészek és állapotdefiníciók)"]
     end
@@ -127,7 +127,7 @@ stateDiagram-v2
 | `src/engine/gameTypes.ts` | Minden TypeScript típus (`GameState`, `RegionStatic`, `RegionRuntimeState`, `Company`, `MonthlyTurnSummary`, `SabotageMinigameSession`, `TankerMinigameSession`, `CoreSampleMinigameSession`, `PendingTankerRescuePrompt`) |
 | `src/engine/turnEngine.ts` | Játékállapot inicializálása, vásárlási/fúrási/magminta/mentési/eladási/hitel/elemzői/szabotázs akciók, 3 MI-rivális logikája, havi körzárás |
 | `src/engine/economyEngine.ts` | Havi kút-kitermelés (válság- és hekkelésszorzókkal), cégvagyon-számítás, spot árfolyam dinamika (`$28–$135`), geopolitikai és éghajlati válságok |
-| `src/engine/sabotageEngine.ts` | Lopakodó folyosó pályagenerátor (`3–5` szoba), kamera pásztázási kinematika, fedezék- és látókúp-ütközésvizsgálat |
+| `src/engine/sabotageEngine.ts` | Többszintes lopakodó épületgenerátor (`3–5` szint, `3–5` szoba), kamera- és őrkinematika, rejtekhely-védelem, észlelés, lift/lépcső útvonaltervezés |
 | `src/engine/operationsEngine.ts` | Tanker navigációs pálya- és zátonygenerátor (`buildTankerNavigationSession`), nehézségfüggő tengeri mentési jutalmak/bírságok (`getTankerRescueConfig`), kőzetkémiai rétegszámoló és elemzői bónuszok (`buildCoreSampleSession`, `evaluateCoreSampleOrder`, `getCoreSampleConfig`) |
 | `src/data/regionsData.ts` | A 16 olajtermelő régió statikus adatai, 6 kőzetréteg-típus, 16 globális/regionális eseménysablon |
 | `src/utils/storage.ts` | `localStorage` kulcskezelés, visszafelé kompatibilis mentés-normalizálás (aktív műveleti képernyők biztonságos szűrése) |
@@ -241,35 +241,40 @@ Memória- és iratpárosító vizsgálat a rivális cégek Cégadatlapjáról in
 ---
 
 ### 4.3 Kormányzati adatközpont behatolás — Kézi rendszerbehatolás (`SabotageMinigameModal` + `sabotageEngine.ts`)
-Oldalnézetes, vízszintesen görgetett (`scrollozó`) 60 FPS 2D lopakodós behatolás a koncessziók kormányzati nyilvántartásának manipulálására.
+Többszintes épület oldalnézeti keresztmetszete, 60 FPS 2D lopakodós behatolás a koncessziók kormányzati nyilvántartásának manipulálására. Az egész épület egyszerre látszik (`viewBox` `360 × (16 + szintek·92 + 8)`), a szélessége `min(100%, 56dvh · VW/VH)`, így mobil portré nézeten is elfér.
 
-- **Irányítás és fizika:**
-  - **Nyomva tartás** (egér, érintőképernyő vagy `Szóköz` / `Jobbra nyíl` / `D`): a betörő balról jobbra halad a folyosón (`168 / 180 / 192 px/mp` nehézségtől függően).
-  - **Hátralépés** (`←` gomb vagy `Balra nyíl` / `A` nyomva tartása): visszalépés, ha a játékos túlfutott egy ajtón.
-  - **Elengedés nyílt falnál / fedezékben:** a betörő azonnal a falhoz simul (`WALL_HUG`). Ha **FEDEZÉK** fülkében (`cover_pre_i`) vagy közvetlenül a kamera alatti **holttérben** (`cover_cam_i`, `±30px`) áll, láthatatlan az aktív kamerasugarak számára.
-  - **Elengedés feltöretlen szerverszoba-ajtó előtt (`doorX ± 40px`):** a karakter besurran a szobába (`HACKING_ROOM`), lefut egy `1450 ms`-os terminálfeltörési animáció (`SSH_AUTH`, `MOUNT /GOV/OIL_QUOTA_DB`, stb.), majd a védett ajtóközben várakozik (`ROOM_READY_TO_EXIT`), amíg a játékos újra nyomva tartja az előrelépést.
-- **Kamerák pásztázási ciklusa (`evaluateCameraSweep`):**
-  - `0.00–0.36`: Aktív piros sugár **BALRA** (`LEFT`)
-  - `0.36–0.50`: Borostyán átfordulási fázis jobbra (`TURNING_RIGHT`, biztonságos)
-  - `0.50–0.86`: Aktív piros sugár **JOBBRA** (`RIGHT`)
-  - `0.86–1.00`: Borostyán átfordulási fázis balra (`TURNING_LEFT`, biztonságos)
-- **Pályaméret és geometria (`bayWidth = 580px`):**
-  - `EASY`: **3 szerverszoba** (`SRV-A1..C3`), `145px` kamerahatótáv, `4.8s` ciklus.
-  - `STANDARD`: **4 szerverszoba** (`SRV-A1..D4`), `160px` kamerahatótáv, `4.2s` ciklus.
-  - `HARD`: **5 szerverszoba** (`SRV-A1..E5`), `172px` kamerahatótáv, `3.6s` ciklus.
-  - Minden belépő fedezék (`cover_pre_i`) geometriailag garantáltan kívül esik a kamera bal oldali sugarán (`15px–42px` biztonsági puffer még a `10px`-es fél-hitboxszal együtt is).
+- **Irányítás (csak egérkattintás / tappintás, billentyűzet nincs — `Szóköz` és nyilak sem):**
+  - Padlóra koppintva a betörő odasétál (`82 / 90 / 98 px/mp` nehézségtől függően).
+  - **Ajtóra** koppintva odamegy és feltöri (`HACKING`), **rejtekhelyre** koppintva elbújik (`HIDDEN`), **lépcsőre** (▲▼) vagy **liftre** koppintva szintet vált. Másik szintre koppintva az útvonaltervező (`planRoute`) választ: `AUTO` módban 2+ szintnyi úton a lift, egy szintnyin a lépcső.
+  - Lépcső: `1,5 mp` / szint. Lift: `1,2 mp` várakozás + `0,6 mp` / szint; a lift a bal oldalon van (`x = 46`), a start `x = 92` a földszinten.
+- **Szintek és szobák (`getStealthFloorCount`, `getStealthRoomCount`):**
+  - `EASY`: **3 szint**, 3 szerverszoba. `STANDARD`: **4 szint**, 4 szoba. `HARD`: **5 szint**, 5 szoba (`SRV-A1..E5`).
+  - A szerverszobák a `1..N-1` szinteken vannak, szintenként legfeljebb 2. A lépcsők szintpáronként váltakozva `x = 314` / `262` helyen vannak.
+- **Ajtótípusok (különböző hackidő):** `OPEN` `1300 ms`, `LOCKED` `2400 ms`, `KEYCARD` `1000 ms`, de kulcskártya kell hozzá. A kártya a földszinten vagy az 1. szinten van (`x = 232`), `16 px` sugarú felvétellel. Kártya nélkül az ajtó üzenetet ad (`statusNeedKey`). Ajtósorrend: `EASY` OPEN/LOCKED/OPEN, `STANDARD` OPEN/LOCKED/KEYCARD/OPEN, `HARD` LOCKED/KEYCARD/OPEN/LOCKED/KEYCARD.
+- **Kameratípusok (`evaluateCamera`):**
+  - `SWEEP` — lengő kamera holttérrel (`24 px`), a sugár balra-jobbra jár.
+  - `FIXED` — villogó rögzített sugár: `0,00–0,50` aktív, `0,50–0,85` kikapcsolva, `0,85–1,00` figyelmeztető villogás. A földszinten mindig van egy (`x = 170`), jobbra néz, így a start és a lift biztonságos.
+  - `SPOT` — csúszó reflektor (`±16 px`) az egész hatótávon, mindig veszélyes.
+- **Őrök (`evaluateGuard`):** a `1..N-1` szinteken járőröznek megállásokkal (`EASY` 0, `STANDARD` 1, `HARD` 2 őr; `34–38 px/mp`), látómezővel. A generátor garantálja, hogy az őr szintjén van őr ellen védő rejtekhely.
+- **Rejtekhelyek (`getHideProtections`):** `LOCKER` mindent kivéd (kamera + őr), `SHADOW` csak a kamerákat, `DESK` a `FIXED` kamerát és az őrt, `PLANT` a `SWEEP` kamerát és az őrt. Minden szinten legalább 2 rejtekhely van (a generátor 1500 seeden ellenőrizve).
+- **Lebukás:** ha a betörő védtelenül kamera- vagy őrsugárban áll, `0,3 mp` türelmi idő (`STEALTH_EXPOSURE_GRACE_SEC`) után lebukik; közben expozíciós gyűrű jelzi. A pálya seedelhető (`mulberry32`).
 
 ```mermaid
 stateDiagram-v2
-    [*] --> WALL_HUG: Folyosó belépési zóna (x=72)
-    WALL_HUG --> WALKING: Egér/Érintés/Szóköz nyomva tartása
-    WALKING --> WALL_HUG: Elengedés ajtón kívül (Fedezékben rejtve, nyílt falon sebezhető)
-    WALL_HUG --> HACKING_ROOM: Elengedés feltöretlen ajtó előtt
-    HACKING_ROOM --> ROOM_READY_TO_EXIT: 1,45 mp feltörés kész (védett az ajtóban)
-    ROOM_READY_TO_EXIT --> WALKING: Újra nyomva tartva kilép a folyosóra
-    HACKING_ROOM --> SUCCESS: Mind a 3-5 szoba feltörve!
-    WALKING --> CAUGHT: Aktív kamera-kúp észleli
-    WALL_HUG --> CAUGHT: Fedezéken kívüli nyílt falon észleli
+    [*] --> IDLE: Földszint, start (x=92)
+    IDLE --> WALKING: Padlóra koppintás
+    WALKING --> IDLE: Célba ért
+    IDLE --> HIDDEN: Rejtekhelyre koppintás
+    HIDDEN --> IDLE: Újabb koppintás
+    IDLE --> HACKING: Ajtóra koppintás (kártya, ha kell)
+    HACKING --> IDLE: Hack kész (1,0–2,4 mp)
+    IDLE --> CLIMBING: Lépcső ▲▼ (1,5 mp/szint)
+    IDLE --> LIFT_WAIT: Lift hívása
+    LIFT_WAIT --> LIFT_RIDE: Lift megérkezett
+    LIFT_RIDE --> IDLE: Célszint
+    HACKING --> SUCCESS: Minden szoba feltörve
+    WALKING --> CAUGHT: Védtelenül kamera/őr látja
+    IDLE --> CAUGHT: Védtelenül kamera/őr látja
 ```
 
 ---

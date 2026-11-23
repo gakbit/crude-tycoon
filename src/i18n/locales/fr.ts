@@ -1117,29 +1117,25 @@ export const fr: TranslationSchema = {
     statusCaught: 'ALARME — REPÉRÉ !',
     statusSuccess: 'SYSTÈMES COMPROMIS',
     statusHacking: 'Piratage salle serveur ({pct} %)',
-    statusReadyExit: 'À l’abri — Maintenez pour sortir !',
     statusWalking: 'Progression furtive dans le couloir',
-    statusWallCover: 'Plaqué au mur (Caché dans l’ombre)',
-    statusWallExposed: 'Plaqué au mur (Exposé — attention aux caméras !)',
+    statusHidden: 'Caché — attendez le bon moment',
+    statusExposed: 'À découvert',
+    statusClimbing: 'Dans l’escalier',
+    statusLift: 'Dans l’ascenseur',
+    statusNeedKey: 'Badge requis — récupérez le ◆ au rez-de-chaussée ou au 1er étage !',
+    keycardLabel: 'Badge',
     caughtPenaltyLabel: 'Si repéré : -{fine} + {months} mois verrou',
     roomStatusOk: 'OK',
     roomStatusLocked: 'VERR.',
     svgAriaLabel: 'Vue furtive du couloir du centre de données',
-    entryZoneTag: 'ZONE ENTRÉE',
-    coverTag: 'COUVERT',
-    doorReachedTag: 'PORTE ATTEINTE — LÂCHEZ !',
-    burglarHiddenTag: 'CACHÉ',
-    burglarExposedTag: 'AU MUR',
-    camLeftTag: '◄ GAUCHE',
-    camRightTag: 'DROITE ►',
-    camTurnTag: 'PIVOT',
-    stepBackMissedButton: 'Revenir à la porte manquée',
-    stepBackButton: 'Reculer (maintenir)',
-    holdForwardButton:
-      'MAINTENIR : AVANCER À DROITE · RELÂCHER : MUR / ENTRER',
     controlsHint:
-      'Maintenez le couloir (ou bouton / Espace) pour avancer. Relâchez dans les zones COUVERT pour vous cacher ou devant une porte verte/bleue pour entrer !',
-    deadzoneHint: 'Angle mort = juste sous la caméra',
+      'Touchez ou cliquez pour vous déplacer. Touchez une porte pour la forcer, une cachette pour vous cacher, l’escalier ou l’ascenseur pour changer d’étage. (Conseils)',
+    legendHide:
+      'Cachettes : casier = cache de tout · ombre = caméras seulement · bureau = gardes + caméras clignotantes · plante = gardes + caméras pivotantes.',
+    legendCameras:
+      'Caméras : pivotante (sûr juste en dessous), faisceau clignotant (ambre = bientôt actif), projecteur coulissant. Les gardes regardent devant eux et font une pause en bout de ronde.',
+    legendDoors:
+      'Portes : ambre = forçage rapide, cadenas rouge = crochetage lent, carte bleue = badge requis.',
     successTitle:
       'Intrusion Réussie ! Toutes les {rooms} salles ont été forcées.',
     successBoostDesc:
