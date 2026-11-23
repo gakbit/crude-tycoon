@@ -257,7 +257,7 @@ Többszintes épület oldalnézeti keresztmetszete, 60 FPS 2D lopakodós behatol
   - `SPOT` — csúszó reflektor (`±16 px`) az egész hatótávon, mindig veszélyes.
 - **Őrök (`evaluateGuard`):** a `1..N-1` szinteken járőröznek megállásokkal (`EASY` 0, `STANDARD` 1, `HARD` 2 őr; `34–38 px/mp`), látómezővel. A generátor garantálja, hogy az őr szintjén van őr ellen védő rejtekhely.
 - **Rejtekhelyek (`getHideProtections`):** `LOCKER` mindent kivéd (kamera + őr), `SHADOW` csak a kamerákat, `DESK` a `FIXED` kamerát és az őrt, `PLANT` a `SWEEP` kamerát és az őrt. Minden szinten legalább 2 rejtekhely van (a generátor 1500 seeden ellenőrizve).
-- **Lebukás:** ha a betörő védtelenül kamera- vagy őrsugárban áll, `0,3 mp` türelmi idő (`STEALTH_EXPOSURE_GRACE_SEC`) után lebukik; közben expozíciós gyűrű jelzi. A pálya seedelhető (`mulberry32`).
+- **Lebukás:** ha a betörő védtelenül kamera- vagy őrsugárban áll, `0,3 mp` türelmi idő (`STEALTH_EXPOSURE_GRACE_SEC`) után lebukik; közben expozíciós gyűrű jelzi. A feltörés alatt és után is a szerverszobában marad (`HACKING` → `IN_ROOM`), ezért láthatatlan, amíg újra el nem indul. A pálya seedelhető (`mulberry32`).
 
 ```mermaid
 stateDiagram-v2
@@ -267,7 +267,8 @@ stateDiagram-v2
     IDLE --> HIDDEN: Rejtekhelyre koppintás
     HIDDEN --> IDLE: Újabb koppintás
     IDLE --> HACKING: Ajtóra koppintás (kártya, ha kell)
-    HACKING --> IDLE: Hack kész (1,0–2,4 mp)
+    HACKING --> IN_ROOM: Hack kész (1,0–2,4 mp), a szobában marad, nem látható
+    IN_ROOM --> WALKING: Következő koppintás, kilép a szobából
     IDLE --> CLIMBING: Lépcső ▲▼ (1,5 mp/szint)
     IDLE --> LIFT_WAIT: Lift hívása
     LIFT_WAIT --> LIFT_RIDE: Lift megérkezett

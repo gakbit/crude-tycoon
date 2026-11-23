@@ -52,7 +52,8 @@ type Posture =
   | 'LIFT_WAIT'
   | 'LIFT_RIDE'
   | 'HIDDEN'
-  | 'HACKING';
+  | 'HACKING'
+  | 'IN_ROOM';
 
 type GameOutcome = 'PLAYING' | 'SUCCESS' | 'CAUGHT';
 
@@ -226,7 +227,7 @@ export const SabotageMinigameModal: React.FC<SabotageMinigameModalProps> = ({
         const action = s.route[0];
 
         if (!action) {
-          if (s.posture !== 'HIDDEN') s.posture = 'IDLE';
+          if (s.posture !== 'HIDDEN' && s.posture !== 'IN_ROOM') s.posture = 'IDLE';
         } else if (action.type === 'WALK') {
           s.posture = 'WALKING';
           const delta = action.x - s.x;
@@ -318,7 +319,8 @@ export const SabotageMinigameModal: React.FC<SabotageMinigameModalProps> = ({
               s.hackedRooms = [...s.hackedRooms, room.roomIndex];
               s.activeRoomIndex = null;
               s.hackMs = 0;
-              s.posture = 'IDLE';
+              // The intruder stays inside the server room until the next move.
+              s.posture = 'IN_ROOM';
               finishAction(s);
               if (s.hackedRooms.length >= session.roomsCount) {
                 s.outcome = 'SUCCESS';
@@ -362,7 +364,10 @@ export const SabotageMinigameModal: React.FC<SabotageMinigameModalProps> = ({
               floor: detectFloor,
               x: s.x,
               hideSpot,
-              isConcealed: s.posture === 'HACKING' || s.posture === 'LIFT_RIDE',
+              isConcealed:
+                s.posture === 'HACKING' ||
+                s.posture === 'IN_ROOM' ||
+                s.posture === 'LIFT_RIDE',
             },
             elapsedSec: s.elapsed,
           });
@@ -530,6 +535,7 @@ export const SabotageMinigameModal: React.FC<SabotageMinigameModalProps> = ({
           </span>
         );
       case 'HIDDEN':
+      case 'IN_ROOM':
         return (
           <span className="font-semibold text-[#44B872]">
             {dict.sabotageModal.statusHidden}
@@ -1128,7 +1134,7 @@ export const SabotageMinigameModal: React.FC<SabotageMinigameModalProps> = ({
                   const hiddenInLocker = hiddenKind === 'LOCKER';
                   const opacity = hiddenInLocker
                     ? 0
-                    : posture === 'HIDDEN'
+                    : posture === 'HIDDEN' || posture === 'IN_ROOM'
                       ? 0.4
                       : inLift
                         ? 0.8
